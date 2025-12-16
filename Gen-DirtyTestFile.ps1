@@ -1,9 +1,11 @@
-# =======================================================
+﻿# =======================================================
 # テスト用 server.xml 生成ツール
 # 意図的に「不正な文字」を混入させたファイルを作成します
 # =======================================================
 
+# ファイル名のみでは、$HOME/$fileNameと誤解されうる
 $fileName = "server.xml"
+$outputPath = Join-Path $PSScriptRoot "server.xml"
 
 # --- 混入させる不正文字の定義 ---
 $badChars = @{
@@ -36,11 +38,27 @@ $xmlContent = @"
 "@
 
 # --- ファイル保存 ---
-# server.xml として UTF-8 (BOMなし) で保存
-[System.IO.File]::WriteAllText($fileName, $xmlContent, (New-Object System.Text.UTF8Encoding($false)))
+try {
+    Write-Host "Creating file at: $outputPath"
+    # server.xml として UTF-8 (BOMなし) で保存
+    [System.IO.File]::WriteAllText($outputPath, $xmlContent, (New-Object System.Text.UTF8Encoding($false)))
+}
+catch {
+    Write-Error "ファイル書き込みに失敗しました: $_"
+}
+
+if (Test-Path -LiteralPath $outputPath) {
+    Write-Host "成功: ファイルが作成されました -> $outputPath" -ForegroundColor Green
+}
+else {
+    # ファイルが物理的に存在しないので失敗と見なす
+    Write-Error "失敗: 書き込みは成功したのに、ファイルが見当たりません"
+    exit 1
+}
+
 
 Write-Host "----------------------------------------------------------------"
-Write-Host "汚れたテストファイル '$fileName' を作成しました。" -ForegroundColor Yellow
+Write-Host "テストファイル '$fileName' を作成しました。" -ForegroundColor Yellow
 Write-Host "このファイルには以下の不正文字が含まれています："
 Write-Host " - スマートクォート (Word由来)"
 Write-Host " - ゼロ幅スペース (Webコピペ由来)"
