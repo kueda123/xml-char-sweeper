@@ -1,7 +1,7 @@
 <# :
 @echo off
-cd /d "%‾dp0"
-set "REAL_SCRIPT=%‾f0"
+cd /d "%~dp0"
+set "REAL_SCRIPT=%~f0"
 
 REM ----------------------------------------------------------------------
 REM  XML Char Sweeper
@@ -92,7 +92,7 @@ $lines = [System.IO.File]::ReadAllLines($inputPath, $utf8NoBom)
 # 正規表現の組み立て
 $pattern = ($def.Keys | ForEach-Object { [regex]::Escape($_) }) -join '|'
 # XML禁止制御文字 (0x00-0x08, 0x0B, 0x0C, 0x0E-0x1F) も検出対象に追加
-$xmlInvalidPattern = "[¥x00-¥x08¥x0B¥x0C¥x0E-¥x1F]"
+$xmlInvalidPattern = "[\x00-\x08\x0B\x0C\x0E-\x1F]"
 $regex = [System.Text.RegularExpressions.Regex]::new("$pattern|$xmlInvalidPattern", [System.Text.RegularExpressions.RegexOptions]::Compiled)
 
 $stats = @{}
